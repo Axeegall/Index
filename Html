@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filmmusikanalys – steg för steg</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <h1>Filmmusikanalys – beskriv scenen och musiken</h1>
+  <div class="progressbar">
+    <div class="progress" id="progress"></div>
+  </div>
+  <p>Fyll i alla tre steg. Texten sparas automatiskt.</p>
+
+  <div class="step" id="step1">
+    <h2>1) Beskriv scenen</h2>
+    <textarea id="input1" placeholder="Skriv steg 1 här…"></textarea>
+  </div>
+
+  <div class="step" id="step2">
+    <h2>2) Beskriv musiken</h2>
+    <div class="sofar" id="sofar2">(Texten från steg 1 visas här)</div>
+    <textarea id="input2" placeholder="Skriv steg 2 här…"></textarea>
+  </div>
+
+  <div class="step" id="step3">
+    <h2>3) Vad gör musiken?</h2>
+    <div class="sofar" id="sofar3">(Texten från steg 1–2 visas här)</div>
+    <textarea id="input3" placeholder="Skriv steg 3 här…"></textarea>
+  </div>
+
+  <div id="summary" class="step">
+    <h2>Sluttext – Filmmusikanalys</h2>
+    <div id="preview">Börja skriva i steg 1…</div>
+    <p><strong>Totalt antal ord:</strong> <span id="wordCount">0</span></p>
+    <div id="status">Sparar automatiskt…</div>
+    <button id="saveBtn">💾 Spara</button>
+    <button id="copyBtn">📋 Kopiera</button>
+    <button id="exportBtn">⬇️ Ladda ned .txt</button>
+    <button id="clearBtn">🗑️ Rensa</button>
+  </div>
+
+  <script type="module" src="js/script.js"></script>
+</body>
+</html>
