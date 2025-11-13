@@ -4,14 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Filmmusikanalys – steg för steg</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {font-family: system-ui, sans-serif; background:#fafafa; color:#1f2937; margin:40px; line-height:1.6;}
+    h1 {text-align:center;}
+    .step {background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 0 10px rgba(0,0,0,0.08);}
+    textarea {width:100%; height:150px; margin-top:10px; padding:12px; border-radius:8px; border:1px solid #ccc;}
+    .sofar {background:#f1f5f9; padding:10px; border-radius:8px; white-space:pre-wrap; margin-bottom:10px;}
+    #preview {background:#0b1020; color:#eef2ff; padding:16px; border-radius:12px; min-height:200px; white-space:pre-wrap;}
+    button {margin-top:10px; margin-right:8px; background:#0f172a; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;}
+    button:hover {filter:brightness(1.1);}
+    #status {font-size:0.85rem; color:#6b7280; margin-bottom:10px;}
+    .progressbar {width:100%; background:#e5e7eb; border-radius:10px; margin-bottom:20px; height:12px; overflow:hidden;}
+    .progress {height:100%; width:0%; background:#0f172a; transition:width 0.3s;}
+  </style>
 </head>
 <body>
   <h1>Filmmusikanalys – beskriv scenen och musiken</h1>
-  <div class="progressbar">
-    <div class="progress" id="progress"></div>
-  </div>
-  <p>Fyll i alla tre steg. Texten sparas automatiskt.</p>
+  <div class="progressbar"><div class="progress" id="progress"></div></div>
 
   <div class="step" id="step1">
     <h2>1) Beskriv scenen</h2>
@@ -30,7 +39,7 @@
     <textarea id="input3" placeholder="Skriv steg 3 här…"></textarea>
   </div>
 
-  <div id="summary" class="step">
+  <div class="step">
     <h2>Sluttext – Filmmusikanalys</h2>
     <div id="preview">Börja skriva i steg 1…</div>
     <p><strong>Totalt antal ord:</strong> <span id="wordCount">0</span></p>
@@ -41,6 +50,49 @@
     <button id="clearBtn">🗑️ Rensa</button>
   </div>
 
-  <script type="module" src="js/script.js"></script>
+  <script>
+    const fields = [1,2,3].map(i=>document.getElementById('input'+i));
+    const sofarBoxes={2:document.getElementById('sofar2'),3:document.getElementById('sofar3')};
+    const preview=document.getElementById('preview');
+    const wordCountEl=document.getElementById('wordCount');
+    const status=document.getElementById('status');
+    const progressBar=document.getElementById('progress');
+    const saveBtn=document.getElementById('saveBtn');
+    const copyBtn=document.getElementById('copyBtn');
+    const exportBtn=document.getElementById('exportBtn');
+    const clearBtn=document.getElementById('clearBtn');
+    const KEY=i=>`filmusic_input${i}`;
+
+    window.addEventListener('DOMContentLoaded',()=>{
+      for(let i=1;i<=3;i++){
+        const saved=localStorage.getItem(KEY(i));
+        if(saved) fields[i-1].value=saved;
+      }
+      updateAll();
+    });
+
+    fields.forEach((el,idx)=>{
+      el.addEventListener('input',()=>{
+        localStorage.setItem(KEY(idx+1),el.value);
+        updateAll();
+        status.textContent='Sparar automatiskt…';
+        clearTimeout(status._timeout);
+        status._timeout=setTimeout(()=>status.textContent='Sparad!',1000);
+      });
+    });
+
+    function buildStory(upto){const end=upto||3; return fields.slice(0,end).map(e=>e.value.trim()).filter(Boolean).join('\n\n');}
+    function renderSofar(){if(sofarBoxes[2]) sofarBoxes[2].textContent=buildStory(1)||'(Inget skrivet ännu.)'; if(sofarBoxes[3]) sofarBoxes[3].textContent=buildStory(2)||'(Inget skrivet ännu.)';}
+    function renderPreview(){preview.textContent=buildStory()||'Börja skriva i steg 1…';}
+    function countWords(t){const m=t.match(/\b[\w’'\-åäöÅÄÖ]+\b/g); return m?m.length:0;}
+    function renderWordCount(){wordCountEl.textContent=countWords(buildStory());}
+    function updateProgress(){const filled=fields.filter(f=>f.value.trim()!=='').length; progressBar.style.width=`${(filled/3)*100}%`;}
+    function updateAll(){renderSofar(); renderPreview(); renderWordCount(); updateProgress();}
+
+    saveBtn.addEventListener('click',()=>{fields.forEach((el,i)=>localStorage.setItem(KEY(i+1),el.value)); status.textContent='Sparat!';});
+    copyBtn.addEventListener('click',async()=>{await navigator.clipboard.writeText(buildStory()); alert('Text kopierad!');});
+    exportBtn.addEventListener('click',()=>{const t=buildStory(); const b=new Blob([t],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='filmmusikanalys.txt'; a.click(); URL.revokeObjectURL(a.href);});
+    clearBtn.addEventListener('click',()=>{if(!confirm('Radera allt sparat arbete?')) return; fields.forEach((el,i)=>{localStorage.removeItem(KEY(i+1)); el.value='';}); updateAll(); status.textContent='Allt rensat!';});
+  </script>
 </body>
 </html>
